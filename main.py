@@ -47,7 +47,9 @@ def chooseCurrency(bot, update):
             i += 1
     bot.sendMessage(update.message.chat.id, "Choose currency:",
         reply_markup=ReplyKeyboardMarkup(
-            keyboard=kb
+            keyboard=kb,
+            one_time_keyboard=True
+
         )
     )
 
