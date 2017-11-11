@@ -1,22 +1,40 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import ParseMode
 import coinbase as cb
+from flask import Flask
+from time import sleep
 
 processingsend = False
 waitingemail = False
 waitingamount = False
+botUpdater = None
+
+app = Flask(__name__)
+
+
+@app.route('/code/<code>')
+def code(code):
+    print(code)
+    setup()
+    return "your code is:" + code
+
+
+app.run(port=9999, debug=True)
 
 
 def start(bot, update):
-    global token
-    responseurl = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text=".format(token, update.message.chat.id)
+    global botUpdater
+    responseurl = "http://127.0.0.1:9999/code"
     coinbase_oauth = cb.CoinbaseOAuth("bf03ac56dd01694ba744831afdbcc94abbc9f36d804c59b5904f4549be2e4047",
                                       "38bc50fcef5a87f9703fcc5939c75edbd00b70244fe1d34ddd40a5b05b2f40db",
                                       responseurl)
     authurl = coinbase_oauth.create_authorize_url()
     authurl = authurl[0:-6] + "&scope=balance+addresses+user+transactions"
     msg = "[Allow access:]({})".format(authurl)
+    print("caca")
     update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+    del botUpdater
+    engegaflisk()
 
 
 def help(bot, update):
@@ -42,7 +60,7 @@ def answerer(bot, update):
     #update.message.reply_text("in reader")
     #print(processingsend)
 
-    if processingsend  and waitingemail  :
+    if processingsend and waitingemail:
         email = text
         waitingemail = False
         update.message.reply_text("got email, enter amount")
@@ -63,8 +81,12 @@ def answerer(bot, update):
         """
 
 def main():
+    setup()
+
+def setup():
 
     global token
+    global botUpdater
     processingsend = False
     waitingemail = False
     waitingamount = False
@@ -72,6 +94,7 @@ def main():
     with open('TelegramToken.txt', 'r') as tokentxt:
         # Obtenir d'un arxiu txt el token únic del bot en qüestió
         token = tokentxt.readline().strip()
+
     botUpdater = Updater(token)
     bot = botUpdater.dispatcher
 
@@ -86,6 +109,7 @@ def main():
     botUpdater.start_polling()
     botUpdater.idle()
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
+
+
