@@ -21,9 +21,7 @@ def answerer(bot, update):
     update.message.reply_text()
 
 
-
 def main():
-
 
     with open('TelegramToken.txt', 'r') as tokentxt:
         # Obtenir d'un arxiu txt el token únic del bot en qüestió
