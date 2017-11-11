@@ -46,11 +46,6 @@ def answerer(bot, update):
     update.message.reply_text("in reader")
 
 
-def graph(bot,update)#bitcoin usd
-    img= "https://bitcoincharts.com/charts/chart.png?width=940&m=bitstampUSD&SubmitButton=Draw&r=180&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
-    #update.message.reply_text(img)
-    bot.sendPhoto(update.message.chat.id, img)
-
 def button(bot, update):
     query = update.callback_query
     if query.data == "1":
@@ -70,7 +65,6 @@ def main():
     bot.add_handler(CommandHandler("start", start))
     bot.add_handler(CommandHandler("market", marketInfo))
     bot.add_handler(CommandHandler("help", help))
-    bot.add_handler(CommandHandler("graph", graph))
     #   Missatges: Filtrar els de text
     bot.add_handler(MessageHandler(Filters.text, answerer))
     #   Botons
