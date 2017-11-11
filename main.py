@@ -8,13 +8,15 @@ waitingamount = False
 
 
 def start(bot, update):
+    global token
+    responseurl = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text=".format(token, update.message.chat.id)
     coinbase_oauth = cb.CoinbaseOAuth("bf03ac56dd01694ba744831afdbcc94abbc9f36d804c59b5904f4549be2e4047",
                                       "38bc50fcef5a87f9703fcc5939c75edbd00b70244fe1d34ddd40a5b05b2f40db",
-                                      "https://www.t.me/CoBase_bot")
+                                      responseurl)
     authurl = coinbase_oauth.create_authorize_url()
     authurl = authurl[0:-6] + "&scope=balance+addresses+user+transactions"
     msg = "[Allow access:]({})".format(authurl)
-    update.message.reply_text(msg, parseMode=ParseMode.MARKDOWN)
+    update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
 
 
 def help(bot, update):
@@ -62,10 +64,10 @@ def answerer(bot, update):
 
 def main():
 
+    global token
     processingsend = False
     waitingemail = False
     waitingamount = False
-    print(authurl)
 
     with open('TelegramToken.txt', 'r') as tokentxt:
         # Obtenir d'un arxiu txt el token únic del bot en qüestió
@@ -83,6 +85,7 @@ def main():
 
     botUpdater.start_polling()
     botUpdater.idle()
+
 
 if __name__ == '__main__':
     main()
