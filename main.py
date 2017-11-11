@@ -1,9 +1,15 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import ParseMode
 import coinbase as cb
 
 
 def start(bot, update):
-    update.message.reply_text("sanx marika")
+    coinbase_oauth = cb.CoinbaseOAuth("bf03ac56dd01694ba744831afdbcc94abbc9f36d804c59b5904f4549be2e4047",
+                                      "38bc50fcef5a87f9703fcc5939c75edbd00b70244fe1d34ddd40a5b05b2f40db",
+                                      "https://www.t.me/CoBase_bot")
+    authurl = coinbase_oauth.create_authorize_url()
+    authurl = authurl[0:-6] + "&scope=balance+addresses+user+transactions"
+    update.message.reply_text("[Allow access:]({})".format(authurl), parse_mode=ParseMode.MARKDOWN)
 
 
 def help(bot, update):
@@ -12,25 +18,12 @@ def help(bot, update):
 
 def answerer(bot, update):
     text = update.message.text
-    update.message.reply_text(reverse(text))
+    update.message.reply_text()
 
-
-def reverse(s):
-    #Tonterida de funció
-    ans = ''
-    for c in s:
-        ans = c + ans
-    return ans
 
 
 def main():
-    coinbase_oauth = cb.CoinbaseOAuth("bf03ac56dd01694ba744831afdbcc94abbc9f36d804c59b5904f4549be2e4047",
-                                      "38bc50fcef5a87f9703fcc5939c75edbd00b70244fe1d34ddd40a5b05b2f40db",
-                                      "https://www.t.me/CoBase_bot")
-    authurl = coinbase_oauth.create_authorize_url()
-    authurl= authurl[0:-6] + "&scope=balance+addresses+user+transactions"
 
-    print(authurl)
 
     with open('TelegramToken.txt', 'r') as tokentxt:
         # Obtenir d'un arxiu txt el token únic del bot en qüestió
@@ -38,10 +31,8 @@ def main():
     botUpdater = Updater(token)
     bot = botUpdater.dispatcher
 
-
-
     # Events
-    #   Commandos: comencen amb /
+    #   Comandos: comencen amb /
     bot.add_handler(CommandHandler("start", start))
     bot.add_handler(CommandHandler("help", help))
     #   Missatges: Filtrar els de text
