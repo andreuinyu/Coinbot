@@ -1,7 +1,8 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 from telegram import ReplyKeyboardMarkup, ReplyMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
-
+currencyinfo = False
+convert = False
 def start(bot, update):
     keyboard = [[InlineKeyboardButton("/market", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')],
@@ -15,9 +16,16 @@ def start(bot, update):
 def help(bot, update):
     update.message.reply_text('Need help? Fuck yourself')
 
+def currencyInfo(bot, update):
+    currencyinfo = True
+    chooseCurrency(bot, update)
 
-def marketInfo(bot, update):
+def Convert(bot, update):
+    convert = True
+    chooseCurrency(bot, update)
 
+
+def chooseCurrency(bot, update):
     kb = [[KeyboardButton(text="BTC"), KeyboardButton(text="ETH"),KeyboardButton(text="BCH")],
           [KeyboardButton(text="XRP"), KeyboardButton(text="LTC"), KeyboardButton(text="DASH")]]
     bot.sendMessage(update.message.chat.id, "What currency do you want info on?",
@@ -29,6 +37,12 @@ def marketInfo(bot, update):
 
 
 def answerer(bot, update):
+    if currencyinfo:
+        pass
+
+    if convert:
+        pass
+
     update.message.reply_text("in reader")
 
 
