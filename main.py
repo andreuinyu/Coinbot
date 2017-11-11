@@ -1,8 +1,10 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 from telegram import ReplyKeyboardMarkup, ReplyMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+from coinmarketcap import Market
 
-currencyinfo = False
-convert = False
+currencyinfo = False;
+conversion = False;
+
 def start(bot, update):
     keyboard = [[InlineKeyboardButton("/market", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')],
@@ -26,15 +28,28 @@ def Convert(bot, update):
 
 
 def chooseCurrency(bot, update):
-    kb = [[KeyboardButton(text="BTC"), KeyboardButton(text="ETH"),KeyboardButton(text="BCH")],
-          [KeyboardButton(text="XRP"), KeyboardButton(text="LTC"), KeyboardButton(text="DASH")]]
+    coinmarketcap = Market()
+    array = coinmarketcap.ticker(limit=6)
+    kb = []
+    i = 0
+    for fila in range(2):
+        kb.append([])
+        for col in range(3):
+            kb[fila].append(KeyboardButton(text=array[i]["symbol"]))
+            i+=1
     bot.sendMessage(update.message.chat.id, "What currency do you want info on?",
         reply_markup=ReplyKeyboardMarkup(
             keyboard=kb
         )
     )
 
-
+def marketInfo(bot, update):
+    out = "Summary of the top cryptocurrencies by market cap: \n"
+    coinmarketcap = Market()
+    array = coinmarketcap.ticker(limit=10)
+    for moneda in array:
+        out +='\n' + moneda['name'] +' ('+ moneda['symbol'] +')' +' = $' + moneda['price_usd']
+    update.message.reply_text(out)
 
 def answerer(bot, update):
     if currencyinfo:
@@ -46,7 +61,8 @@ def answerer(bot, update):
     update.message.reply_text("in reader")
 
 
-def graph(bot,update)#bitcoin usd
+def graph(bot,update):
+    #bitcoin usd
     img= "https://bitcoincharts.com/charts/chart.png?width=940&m=bitstampUSD&SubmitButton=Draw&r=180&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
     #update.message.reply_text(img)
     bot.sendPhoto(update.message.chat.id, img)
@@ -71,6 +87,7 @@ def main():
     bot.add_handler(CommandHandler("market", marketInfo))
     bot.add_handler(CommandHandler("help", help))
     bot.add_handler(CommandHandler("graph", graph))
+    bot.add_handler(CommandHandler("currency", chooseCurrency))
     #   Missatges: Filtrar els de text
     bot.add_handler(MessageHandler(Filters.text, answerer))
     #   Botons
