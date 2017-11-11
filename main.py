@@ -8,7 +8,6 @@ conversion = False;
 def start(bot, update):
     keyboard = [[InlineKeyboardButton("/market", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')],
-
                 [InlineKeyboardButton("Option 3", callback_data='3')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -19,6 +18,7 @@ def help(bot, update):
     update.message.reply_text('Need help? Fuck yourself')
 
 def currencyInfo(bot, update):
+    global currencyinfo
     currencyinfo = True
     chooseCurrency(bot, update)
 
@@ -52,13 +52,25 @@ def marketInfo(bot, update):
     update.message.reply_text(out)
 
 def answerer(bot, update):
+    text = update.message.text
+    global currencyinfo
     if currencyinfo:
-        pass
+        coinmarketcap = Market()
+        info = ""
+        array = coinmarketcap.ticker(limit=6)
+        for moneda in array:
+            if moneda["symbol"] == text:
+                info = "Name: "+ moneda["name"]+' ('+ moneda['symbol'] +')' +"\nSupply: "
+                info+= moneda["available_supply"] + " of " + moneda["max_supply"] + text + "\n"
+                info+= "Value change 24h: " + moneda["percent_change_24h"] + "%"
+                info+= "\nValue change 7 day: " + moneda["percent_change_7d"] + "%"
+                update.message.reply_text(info)
+                break
+        currencyinfo = False;
 
-    if convert:
-        pass
 
-    update.message.reply_text("in reader")
+    elif convert:
+        pass
 
 
 def graph(bot,update):
@@ -87,7 +99,7 @@ def main():
     bot.add_handler(CommandHandler("market", marketInfo))
     bot.add_handler(CommandHandler("help", help))
     bot.add_handler(CommandHandler("graph", graph))
-    bot.add_handler(CommandHandler("currency", chooseCurrency))
+    bot.add_handler(CommandHandler("currency", currencyInfo))
     #   Missatges: Filtrar els de text
     bot.add_handler(MessageHandler(Filters.text, answerer))
     #   Botons
