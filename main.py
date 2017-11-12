@@ -10,17 +10,21 @@ rate = [None, 0]
 
 
 def start(bot, update):
-    keyboard = [[InlineKeyboardButton("/market", callback_data='1'),
-                 InlineKeyboardButton("/graph", callback_data='2')],
-
-                [InlineKeyboardButton("/converttousd", callback_data='3')]]
+    keyboard = [[InlineKeyboardButton("Donate", callback_data='1', url="paypal.me/tetacos")],
+                [InlineKeyboardButton("Code", callback_data='2', url="https://github.com/andreuinyu/Coinbot")]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    update.message.reply_text('Welcome to Coinbot. Send /help for information on how to use', reply_markup=reply_markup)
 
 
 def help(bot, update):
-    update.message.reply_text('Need help? Fuck yourself')
+    msg = "This bot helps you get useful info on cryptocurrencies. \n\n" \
+          "*Market info* \n /market - It will show you the _n_ most relevant cryptocurrencies and its status \n" \
+          "*Graph* \n /graph - Last 6 months of the bitcon price in USD\n" \
+          "*Currency*\n /currency - Given a code of a cryptocurrency, displays its name, the existing supply and the " \
+          "daily and weekly change in value" \
+          "*Convert to USD* \n /converttousd - after the cryptocurrency is selected, returns the quantity sent in USD"
+    bot.sendMessage(update.message.chat.id, msg, parse_mode="Markdown")
 
 
 def currencyInfo(bot, update):
@@ -45,7 +49,9 @@ def chooseCurrency(bot, update):
         for col in range(3):
             kb[fila].append(KeyboardButton(text=array[i]["symbol"]))
             i += 1
-    bot.sendMessage(update.message.chat.id, "Choose currency:",
+    bot.sendMessage(
+        update.message.chat.id,
+        "Choose currency:",
         reply_markup=ReplyKeyboardMarkup(
             keyboard=kb,
             one_time_keyboard=True
@@ -70,8 +76,7 @@ def answerer(bot, update):
 
     if currencyinfo:
         coinmarketcap = Market()
-        info = ""
-        array = coinmarketcap.ticker(limit=6)
+        array = coinmarketcap.ticker(limit=100)
         for moneda in array:
             if moneda["symbol"] == text:
                 info = "Name: " + moneda["name"] + ' (' + moneda['symbol'] + ')' + "\nSupply: "
@@ -115,10 +120,9 @@ def answerer(bot, update):
             update.message.reply_text("Only integers")
 
 
-
 def graph(bot,update):
     #bitcoin usd
-    img= "https://bitcoincharts.com/charts/chart.png?width=940&m=bitstampUSD&SubmitButton=Draw&r=180&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
+    img = "https://bitcoincharts.com/charts/chart.png?width=940&m=bitmarketEUR&SubmitButton=Draw&r=180&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
     #update.message.reply_text(img)
     bot.sendPhoto(update.message.chat.id, img)
 
@@ -126,6 +130,7 @@ def graph(bot,update):
 def button(bot, update):
     query = update.callback_query
     if query.data == "1":
+        print("/market")
         marketInfo(bot, update)
 
 
