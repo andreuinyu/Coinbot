@@ -49,7 +49,6 @@ def chooseCurrency(bot, update):
         reply_markup=ReplyKeyboardMarkup(
             keyboard=kb,
             one_time_keyboard=True
-
         )
     )
 
@@ -76,7 +75,11 @@ def answerer(bot, update):
         for moneda in array:
             if moneda["symbol"] == text:
                 info = "Name: " + moneda["name"] + ' (' + moneda['symbol'] + ')' + "\nSupply: "
-                info += moneda["available_supply"] + " of " + moneda["max_supply"] + text + "\n"
+                info += moneda["available_supply"] + " of "
+                if moneda["max_supply"] is None:
+                    info += "unknown \n"
+                else:
+                    info += moneda["max_supply"] + " " + text + "\n"
                 info += "Value change 24h: " + moneda["percent_change_24h"] + "%"
                 info += "\nValue change 7 day: " + moneda["percent_change_7d"] + "%"
                 update.message.reply_text(info)
@@ -100,13 +103,17 @@ def answerer(bot, update):
         update.message.reply_text(text + " " + rate[0] + " = $" + str(float(text)*rate[1]))
 
     elif waitingnumcurrencies:
-        waitingnumcurrencies = False
-        out = "Summary of the top {} cryptocurrencies by market cap: \n".format(text)
-        coinmarketcap = Market()
-        array = coinmarketcap.ticker(limit=int(text))
-        for moneda in array:
-            out += '\n' + moneda['name'] + ' (' + moneda['symbol'] + ')' + ' = $' + moneda['price_usd']
-        update.message.reply_text(out)
+        if text.isdigit():
+            waitingnumcurrencies = False
+            out = "Summary of the top {} cryptocurrencies by market cap: \n".format(text)
+            coinmarketcap = Market()
+            array = coinmarketcap.ticker(limit=int(text))
+            for moneda in array:
+                out += '\n' + moneda['name'] + ' (' + moneda['symbol'] + ')' + ' = $' + moneda['price_usd']
+            update.message.reply_text(out)
+        else:
+            update.message.reply_text("Only integers")
+
 
 
 def graph(bot,update):
@@ -119,7 +126,7 @@ def graph(bot,update):
 def button(bot, update):
     query = update.callback_query
     if query.data == "1":
-        return marketInfo(bot, update)
+        marketInfo(bot, update)
 
 
 def main():
