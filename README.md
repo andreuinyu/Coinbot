@@ -17,7 +17,7 @@ This bot helps you get useful info on cryptocurrencies.
  /currency - Given a code of a cryptocurrency, displays its name, the existing supply and the daily and weekly change in valueConvert to 
 
 
-**USD** 
+**Convert to USD** 
 
  /converttousd - after the cryptocurrency is selected, returns the quantity sent in USD
 
