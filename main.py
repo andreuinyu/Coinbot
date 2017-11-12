@@ -48,7 +48,7 @@ def chooseConversion(bot, update):
           [KeyboardButton(text="CHF"), KeyboardButton(text="GBP")]]
     bot.sendMessage(
         update.message.chat.id,
-        "Choose target real currency:",
+        "Choose real currency target:",
         reply_markup=ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
     )
 
