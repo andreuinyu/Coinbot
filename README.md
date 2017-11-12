@@ -1,4 +1,4 @@
-[# Coinbot](telegram.me/CoBase_bot)
+#[Coinbot](telegram.me/CoBase_bot)
 
 This bot helps you get useful info on cryptocurrencies. 
 
