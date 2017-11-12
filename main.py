@@ -3,7 +3,8 @@ from telegram import ReplyKeyboardMarkup, ReplyMarkup, KeyboardButton, InlineKey
 from coinmarketcap import Market
 
 currencyinfo = False
-conversionusd = False
+conversion = False
+conversionEur = -1
 waitingamount = False
 waitingnumcurrencies = False
 rate = [None, 0]
@@ -22,8 +23,8 @@ def help(bot, update):
           "*Market info* \n /market - It will show you the _n_ most relevant cryptocurrencies and its status \n" \
           "*Graph* \n /graph - Last 6 months of the bitcon price in USD\n" \
           "*Currency*\n /currency - Given a code of a cryptocurrency, displays its name, the existing supply and the " \
-          "daily and weekly change in value" \
-          "*Convert to USD* \n /converttousd - after the cryptocurrency is selected, returns the quantity sent in USD"
+          "daily and weekly change in value\n" \
+          "*Convert* \n /convert - get the conversion from cryptocurrency of your choice to Euro or US Dollar"
     bot.sendMessage(update.message.chat.id, msg, parse_mode="Markdown")
 
 
@@ -33,10 +34,18 @@ def currencyInfo(bot, update):
     chooseCurrency(bot, update)
 
 
-def ConvertToUSD(bot, update):
-    global conversionusd
-    conversionusd = True
-    chooseCurrency(bot, update)
+def Convert(bot, update):
+    global conversion
+    conversion = True
+    chooseConversion(bot, update)
+
+
+def chooseConversion(bot, update):
+    kb = [[KeyboardButton(text="EUR")],[KeyboardButton(text="USD")]]
+    bot.sendMessage(update.message.chat.id,"Choose EUR or USD:",
+    reply_markup=ReplyKeyboardMarkup(keyboard=kb,one_time_keyboard=True)
+    )
+
 
 
 def chooseCurrency(bot, update):
@@ -51,7 +60,7 @@ def chooseCurrency(bot, update):
             i += 1
     bot.sendMessage(
         update.message.chat.id,
-        "Choose currency:",
+        "Choose or type the desired crytocurrency symbol:",
         reply_markup=ReplyKeyboardMarkup(
             keyboard=kb,
             one_time_keyboard=True
@@ -69,43 +78,63 @@ def answerer(bot, update):
     text = update.message.text
 
     global currencyinfo
-    global conversionusd
+    global conversion
+    global conversionEur
     global rate
     global waitingamount
     global waitingnumcurrencies
 
     if currencyinfo:
+        found = False
         coinmarketcap = Market()
         array = coinmarketcap.ticker(limit=100)
         for moneda in array:
             if moneda["symbol"] == text:
-                info = "Name: " + moneda["name"] + ' (' + moneda['symbol'] + ')' + "\nSupply: "
+                found = True
+                info = "Name: " + moneda["name"] + ' (' + moneda['symbol'] + ')'+"\nRanked: "+ moneda['rank']+ "\nSupply: "
                 info += moneda["available_supply"] + " of "
                 if moneda["max_supply"] is None:
                     info += "unknown \n"
                 else:
-                    info += moneda["max_supply"] + " " + text + "\n"
+                    info += moneda["max_supply"] + text +  " ("+ str(int(float(moneda["available_supply"])/float(moneda["max_supply"]) * 100))+"%)"+"\n"
                 info += "Value change 24h: " + moneda["percent_change_24h"] + "%"
                 info += "\nValue change 7 day: " + moneda["percent_change_7d"] + "%"
                 update.message.reply_text(info)
                 break
-        currencyinfo = False
+        if not found:
+            update.message.reply_text("Cryptocurrency not found, choose another currency")
+        else :
+            currencyinfo = False
 
-    elif conversionusd:
-        conversionusd = False
+    elif conversion and conversionEur == -1:
+        if text == 'USD':
+            conversionEur = 0
+        else:
+            conversionEur = 1
+        chooseCurrency(bot, update)
+
+    elif conversion and conversionEur != -1:
+        conversion = False
         coinmarketcap = Market()
-        array = coinmarketcap.ticker(limit=6)
+        array = coinmarketcap.ticker(limit=100, convert = 'EUR')
         for moneda in array:
             if text == moneda["symbol"]:
                 rate[0] = text
-                rate[1] = float(moneda["price_usd"])
+                if conversionEur == 0:
+                    rate[1] = float(moneda["price_usd"])
+                else:
+                    rate[1] = float(moneda["price_eur"])
                 waitingamount = True
                 break
         update.message.reply_text("Enter amount of " + rate[0])
 
     elif waitingamount:
         waitingamount = False
-        update.message.reply_text(text + " " + rate[0] + " = $" + str(float(text)*rate[1]))
+        if conversionEur == 0:
+            update.message.reply_text(text + " " + rate[0] + " = $" + str(float(text)*rate[1]))
+        else:
+            update.message.reply_text(text + " " + rate[0] + " = €" + str(float(text)*rate[1]))
+        conversionEur = -1
 
     elif waitingnumcurrencies:
         if text.isdigit():
@@ -150,7 +179,7 @@ def main():
     bot.add_handler(CommandHandler("help", help))
     bot.add_handler(CommandHandler("graph", graph))
     bot.add_handler(CommandHandler("currency", currencyInfo))
-    bot.add_handler(CommandHandler("converttousd", ConvertToUSD))
+    bot.add_handler(CommandHandler("convert", Convert))
     #   Missatges: Filtrar els de text
     bot.add_handler(MessageHandler(Filters.text, answerer))
     #   Botons
