@@ -21,7 +21,7 @@ This bot helps you get useful info on cryptocurrencies.
 
 
 
-**Convert to USD** 
+**Convert** 
 
- /converttousd - after the cryptocurrency is selected, returns the quantity sent in USD
+ /convert - get the conversion from cryptocurrency of your choice to Euro or US Dollar
 
